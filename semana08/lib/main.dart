@@ -4,119 +4,408 @@ void main() {
   runApp(const MyApp());
 }
 
+final ThemeData appTheme = ThemeData(
+  primarySwatch: Colors.blue,
+  scaffoldBackgroundColor: Colors.white,
+  cardTheme: const CardThemeData(
+    elevation: 2,
+    margin: EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+    shape: RoundedRectangleBorder(
+      borderRadius: BorderRadius.all(Radius.circular(12)),
+    ),
+  ),
+  inputDecorationTheme: InputDecorationTheme(
+    filled: true,
+    fillColor: Colors.white,
+    border: OutlineInputBorder(
+      borderRadius: BorderRadius.circular(12),
+    ),
+    contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+  ),
+  textTheme: const TextTheme(
+    headlineSmall: TextStyle(fontWeight: FontWeight.bold),
+  ),
+);
+
+class AppData {
+  static String? nombre;
+  static String? ocupacion;
+  static String? correo;
+  static int?   edad;
+
+  static final List<Map<String, String>> tareas = [
+    {'titulo': 'Trabajo 1', 'prioridad': 'Alta',   'img': 'https://picsum.photos/seed/t1/80'},
+    {'titulo': 'Trabajo 2', 'prioridad': 'Normal', 'img': 'https://picsum.photos/seed/t2/80'},
+    {'titulo': 'Acerreo',   'prioridad': 'Baja',   'img': 'https://picsum.photos/seed/t3/80'},
+    {'titulo': 'Revisión',  'prioridad': 'Alta',   'img': 'https://picsum.photos/seed/t4/80'},
+  ];
+}
+
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
-
-  // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Flutter Demo',
-      theme: ThemeData(
-        // This is the theme of your application.
-        //
-        // TRY THIS: Try running your application with "flutter run". You'll see
-        // the application has a purple toolbar. Then, without quitting the app,
-        // try changing the seedColor in the colorScheme below to Colors.green
-        // and then invoke "hot reload" (save your changes or press the "hot
-        // reload" button in a Flutter-supported IDE, or press "r" if you used
-        // the command line to start the app).
-        //
-        // Notice that the counter didn't reset back to zero; the application
-        // state is not lost during the reload. To reset the state, use hot
-        // restart instead.
-        //
-        // This works for code too, not just values: Most code changes can be
-        // tested with just a hot reload.
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
-      ),
-      home: const MyHomePage(title: 'Flutter Demo Home Page'),
+      title: 'Gestor de Tareas',
+      debugShowCheckedModeBanner: false,
+      theme: appTheme,
+      initialRoute: '/',
+      routes: {
+        '/':       (context) => const GestorTareasPage(),
+        '/menu':   (context) => const MenuPage(),
+        '/profile':(context) => const RegistroUsuarioPage(),
+        '/tareas': (context) => const RegistroTareasPage(),
+      },
     );
   }
 }
 
-class MyHomePage extends StatefulWidget {
-  const MyHomePage({super.key, required this.title});
-
-  // This widget is the home page of your application. It is stateful, meaning
-  // that it has a State object (defined below) that contains fields that affect
-  // how it looks.
-
-  // This class is the configuration for the state. It holds the values (in this
-  // case the title) provided by the parent (in this case the App widget) and
-  // used by the build method of the State. Fields in a Widget subclass are
-  // always marked "final".
-
-  final String title;
+/// ---------------PANTALLA 1: GESTOR DE TAREAS --------------------------------
+class GestorTareasPage extends StatelessWidget {
+  const GestorTareasPage({super.key});
 
   @override
-  State<MyHomePage> createState() => _MyHomePageState();
+  Widget build(BuildContext context) {
+    return SafeArea(
+      child: Scaffold(
+        body: Padding(
+          padding: const EdgeInsets.all(24),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              const Spacer(),
+              const Text(
+                'Gestor de\nTareas',
+                textAlign: TextAlign.center,
+                style: TextStyle(fontSize: 32, fontWeight: FontWeight.bold),
+              ),
+              const Spacer(),
+              ElevatedButton.icon(
+                onPressed: () => Navigator.pushReplacementNamed(context, '/menu'),
+                icon: const Icon(Icons.login),
+                label: const Text('Entrar'),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
 }
 
-class _MyHomePageState extends State<MyHomePage> {
-  int _counter = 0;
+/// --------- PANTALLA 2: MENÚ --------------
+class MenuPage extends StatelessWidget {
+  const MenuPage({super.key});
 
-  void _incrementCounter() {
-    setState(() {
-      // This call to setState tells the Flutter framework that something has
-      // changed in this State, which causes it to rerun the build method below
-      // so that the display can reflect the updated values. If we changed
-      // _counter without calling setState(), then the build method would not be
-      // called again, and so nothing would appear to happen.
-      _counter++;
-    });
+  @override
+  Widget build(BuildContext context) {
+    final items = [
+      {'titulo': 'Home',    'ruta': 'home'},
+      {'titulo': 'Profile', 'ruta': '/profile'},
+      {'titulo': 'Tareas',  'ruta': '/tareas'},
+    ];
+
+    return SafeArea(
+      child: Scaffold(
+        appBar: AppBar(title: const Text('MENÚ')),
+        body: ListView.builder(
+          padding: const EdgeInsets.symmetric(vertical: 8),
+          itemCount: items.length,
+          itemBuilder: (context, index) {
+            final it = items[index];
+            return Card(
+              child: ListTile(
+                leading: const Icon(Icons.menu_book),
+                trailing: const Icon(Icons.chevron_right),
+                title: Text(it['titulo']!),
+                onTap: () {
+                  if (it['ruta'] == 'home') {
+                    Navigator.pushNamedAndRemoveUntil(
+                      context,
+                      '/',
+                      (route) => false,
+                    );
+                  } else {
+                    Navigator.pushNamed(context, it['ruta']!);
+                  }
+                },
+              ),
+            );
+          },
+        ),
+      ),
+    );
+  }
+}
+
+/// ----------- PANTALLA 3: REGISTRO DE USUARIO ----------------------
+class RegistroUsuarioPage extends StatefulWidget {
+  const RegistroUsuarioPage({super.key});
+
+  @override
+  State<RegistroUsuarioPage> createState() => _RegistroUsuarioPageState();
+}
+
+class _RegistroUsuarioPageState extends State<RegistroUsuarioPage> {
+  final TextEditingController _nombre    = TextEditingController(text: AppData.nombre);
+  final TextEditingController _ocupacion = TextEditingController(text: AppData.ocupacion);
+  final TextEditingController _correo    = TextEditingController(text: AppData.correo);
+  final TextEditingController _edad      = TextEditingController(text: AppData.edad?.toString() ?? '');
+
+  String? _validarCorreo(String value) {
+    if (value.isEmpty) return 'Ingresa un correo';
+    if (!value.contains('@') || !value.contains('.')) return 'Correo no válido';
+    return null;
+  }
+
+  String? _validarEdad(String value) {
+    if (value.isEmpty) return 'Ingresa tu edad';
+    final n = int.tryParse(value);
+    if (n == null || n <= 0 || n > 120) return 'Edad no válida';
+    return null;
   }
 
   @override
   Widget build(BuildContext context) {
-    // This method is rerun every time setState is called, for instance as done
-    // by the _incrementCounter method above.
-    //
-    // The Flutter framework has been optimized to make rerunning build methods
-    // fast, so that you can just rebuild anything that needs updating rather
-    // than having to individually change instances of widgets.
-    return Scaffold(
-      appBar: AppBar(
-        // TRY THIS: Try changing the color here to a specific color (to
-        // Colors.amber, perhaps?) and trigger a hot reload to see the AppBar
-        // change color while the other colors stay the same.
-        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-        // Here we take the value from the MyHomePage object that was created by
-        // the App.build method, and use it to set our appbar title.
-        title: Text(widget.title),
-      ),
-      body: Center(
-        // Center is a layout widget. It takes a single child and positions it
-        // in the middle of the parent.
-        child: Column(
-          // Column is also a layout widget. It takes a list of children and
-          // arranges them vertically. By default, it sizes itself to fit its
-          // children horizontally, and tries to be as tall as its parent.
-          //
-          // Column has various properties to control how it sizes itself and
-          // how it positions its children. Here we use mainAxisAlignment to
-          // center the children vertically; the main axis here is the vertical
-          // axis because Columns are vertical (the cross axis would be
-          // horizontal).
-          //
-          // TRY THIS: Invoke "debug painting" (choose the "Toggle Debug Paint"
-          // action in the IDE, or press "p" in the console), to see the
-          // wireframe for each widget.
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            const Text('You have pushed the button this many times:'),
-            Text(
-              '$_counter',
-              style: Theme.of(context).textTheme.headlineMedium,
-            ),
-          ],
+    final hasUser = (AppData.nombre ?? '').isNotEmpty;
+    return SafeArea(
+      child: Scaffold(
+        appBar: AppBar(
+          title: const Text('Registro de Usuario'),
+        ),
+        body: Padding(
+          padding: const EdgeInsets.all(16),
+          child: ListView(
+            children: [
+              const SizedBox(height: 8),
+              TextField(
+                controller: _nombre,
+                decoration: const InputDecoration(
+                  labelText: 'Nombre',
+                  prefixIcon: Icon(Icons.person),
+                ),
+              ),
+              const SizedBox(height: 12),
+              TextField(
+                controller: _ocupacion,
+                decoration: const InputDecoration(
+                  labelText: 'Ocupación',
+                  prefixIcon: Icon(Icons.work),
+                ),
+              ),
+              const SizedBox(height: 12),
+              TextField(
+                controller: _correo,
+                keyboardType: TextInputType.emailAddress,
+                decoration: const InputDecoration(
+                  labelText: 'Correo',
+                  prefixIcon: Icon(Icons.email),
+                ),
+              ),
+              const SizedBox(height: 12),
+              TextField(
+                controller: _edad,
+                keyboardType: TextInputType.number,
+                decoration: const InputDecoration(
+                  labelText: 'Edad',
+                  prefixIcon: Icon(Icons.cake),
+                ),
+              ),
+              const SizedBox(height: 24),
+              ElevatedButton.icon(
+                onPressed: () {
+                  final correo = _correo.text.trim();
+                  final edadTxt = _edad.text.trim();
+
+                  final correoError = _validarCorreo(correo);
+                  if (correoError != null) {
+                    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(correoError)));
+                    return;
+                  }
+                  final edadError = _validarEdad(edadTxt);
+                  if (edadError != null) {
+                    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(edadError)));
+                    return;
+                  }
+
+                  AppData.nombre    = _nombre.text.trim();
+                  AppData.ocupacion = _ocupacion.text.trim();
+                  AppData.correo    = correo;
+                  AppData.edad      = int.tryParse(edadTxt);
+
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('Datos guardados')),
+                  );
+                  Navigator.pop(context); 
+                },
+                icon: const Icon(Icons.save),
+                label: const Text('Continuar'),
+              ),
+              const SizedBox(height: 16),
+              if (hasUser || (AppData.correo ?? '').isNotEmpty || (AppData.edad ?? 0) > 0)
+                Card(
+                  child: ListTile(
+                    leading: const Icon(Icons.person, color: Colors.green),
+                    title: Text((AppData.nombre ?? '').isEmpty ? 'Usuario' : AppData.nombre!),
+                    subtitle: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text((AppData.ocupacion ?? '').isEmpty ? 'Sin ocupación' : AppData.ocupacion!),
+                        if ((AppData.correo ?? '').isNotEmpty) Text(AppData.correo!),
+                        if ((AppData.edad ?? 0) > 0) Text('Edad: ${AppData.edad} años'),
+                      ],
+                    ),
+                    trailing: const Icon(Icons.check_circle, color: Colors.green),
+                  ),
+                ),
+            ],
+          ),
         ),
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _incrementCounter,
-        tooltip: 'Increment',
-        child: const Icon(Icons.add),
-      ), // This trailing comma makes auto-formatting nicer for build methods.
     );
   }
 }
+
+/// ------------- PANTALLA 4: REGISTRO DE TAREAS ---------------------------------
+class RegistroTareasPage extends StatefulWidget {
+  const RegistroTareasPage({super.key});
+
+  @override
+  State<RegistroTareasPage> createState() => _RegistroTareasPageState();
+}
+
+class _RegistroTareasPageState extends State<RegistroTareasPage> {
+  final List<String> prioridades = ['Todas', 'Alta', 'Normal', 'Baja'];
+  String filtro = 'Todas';
+
+  Color _colorPrioridad(String p) {
+    switch (p) {
+      case 'Alta':  return Colors.red;
+      case 'Baja':  return Colors.green;
+      default:      return Colors.black87;
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final visibles = AppData.tareas.where((t) {
+      if (filtro == 'Todas') return true;
+      return t['prioridad'] == filtro;
+    }).toList();
+
+    return SafeArea(
+      child: Scaffold(
+        appBar: AppBar(
+          title: const Text('Registro de Tareas'),
+        ),
+        body: Padding(
+          padding: const EdgeInsets.all(12),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Align(
+                alignment: Alignment.centerRight,
+                child: SizedBox(
+                  width: 180,
+                  child: DropdownButtonFormField<String>(
+                    value: filtro,
+                    items: prioridades
+                        .map((p) => DropdownMenuItem(value: p, child: Text(p)))
+                        .toList(),
+                    onChanged: (val) {
+                      if (val != null) {
+                        setState(() => filtro = val);
+                      }
+                    },
+                    decoration: const InputDecoration(
+                      isDense: true,
+                      labelText: 'Prioridad',
+                    ),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 12),
+              Expanded(
+                child: ListView.builder(
+                  itemCount: visibles.length,
+                  itemBuilder: (context, index) {
+                    final t = visibles[index];
+                    return Card(
+                      child: ListTile(
+                        leading: CircleAvatar(
+                          backgroundImage: NetworkImage(t['img']!),
+                        ),
+                        title: Text(t['titulo']!),
+                        subtitle: Text('Prioridad: ${t['prioridad']}'),
+                        trailing: Text(
+                          t['prioridad']!,
+                          style: TextStyle(
+                            color: _colorPrioridad(t['prioridad']!),
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        onTap: () {
+                          showModalBottomSheet(
+                            context: context,
+                            builder: (_) => _DetalleTarea(t: t),
+                          );
+                        },
+                      ),
+                    );
+                  },
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// ---------- DETALLE DE TAREA -------------------------
+class _DetalleTarea extends StatelessWidget {
+  final Map<String, String> t;
+  const _DetalleTarea({required this.t});
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.all(16),
+      child: ListView(
+        shrinkWrap: true,
+        children: [
+          Row(
+            children: [
+              CircleAvatar(
+                radius: 28,
+                backgroundImage: NetworkImage(t['img']!),
+              ),
+              const SizedBox(width: 12),
+              Text(
+                t['titulo']!,
+                style: Theme.of(context).textTheme.headlineSmall,
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+          Text('Prioridad: ${t['prioridad']}'),
+          const SizedBox(height: 8),
+          const Text(
+            'Detalle: esta es una descripción breve de la tarea. '
+            'Puedes ampliar con fecha, responsable o notas.',
+          ),
+          const SizedBox(height: 12),
+          Align(
+            alignment: Alignment.centerRight,
+            child: TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('Cerrar'),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
